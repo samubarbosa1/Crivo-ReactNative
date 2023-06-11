@@ -11,15 +11,29 @@ export default function App() {
     {ans1:'primo 1', ans2: 'primo 2'}
   );
 
-  const generateAns = (num) => { //essa função deve fazer a requisição http
-    setAns({ ans1: 3, ans2: 5 });
+  const generateAns = async (num) => { //essa função deve fazer a requisição http
+    try {
+      const response = await fetch(`http://172.15.5.239:8000/?numero=${num}`, {
+        method: 'GET',
+      });
+      const data = await response.text();
+      if(data.length == 2){
+        setAns({ans1:"NAN", ans2: "NAN"});
+      }
+      else{
+        let num1 = data.split(', ')[0].split('(')[1], num2 = data.split(', ')[1].split(')')[0];
+        setAns({ans1:num1, ans2:num2});
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>ERASTÓTENES GENERATOR</Text>
+        <Text style={styles.title}>ERATÓSTENES GENERATOR</Text>
       </View>
       
       <View style={styles.inputContainer}>
@@ -36,8 +50,13 @@ export default function App() {
           />
         </View>
         <View style={styles.answerContainer}>
-          <Text>{ans.ans1.toString()}</Text>
-          <Text>{ans.ans2.toString()}</Text>
+          <View style={styles.partialAnswerContainer}>
+            <Text>{ans.ans1.toString()}</Text>
+          </View>
+          
+          <View style={styles.partialAnswerContainer}>
+            <Text>{ans.ans2.toString()}</Text>
+          </View>
         </View>
         
       </View>
@@ -55,6 +74,7 @@ const styles = StyleSheet.create({
     alignItems:'center'
   },
   titleContainer:{
+    marginTop: 200,
     padding:20,
     borderRadius:10,
     backgroundColor: '#DA7635',
@@ -83,7 +103,15 @@ const styles = StyleSheet.create({
     display:'flex',
     flexDirection:'row',
     justifyContent:'space-between',
-    
+    paddingHorizontal: 30
+  },
+  partialAnswerContainer:{
+    backgroundColor: '#DA7635',
+    height:50,
+    width:50,
+    borderRadius:25,
+    justifyContent:'center',
+    alignItems:'center'
   }
 
 });
